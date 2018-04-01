@@ -1,7 +1,6 @@
 from threading import Thread
 from time import sleep
 import serial
-
 import sys
 import glob
 
@@ -10,7 +9,6 @@ import glob
 # Thi function takes
 def robot_control(command, arg1, serial_port):
     # process the direction
-
     # process the time (if any)
     global message
     if command == 'forward':
@@ -20,7 +18,6 @@ def robot_control(command, arg1, serial_port):
     elif command == 'stop':
         # there are two way to stop: one is natural one is interrupt stop/
         message = "3" + str(0).zfill(5)
-
     #     import RPi.GPIO as GPIO
     #     GPIO.setmode(GPIO.BCM)
     #     GPIO.setwarnings(False)
@@ -36,42 +33,21 @@ def robot_control(command, arg1, serial_port):
     #     print("Invalid messages\n")
     #     return -1
 
-
     # only forward and turn will reach here
-    serial_port.write(message.encode())
 
-    print(message)
+
+    serial_port.write(message.encode())
 
     # wait for arduino feedback to send another serial message
     while serial_port.readline() != b'done\r\n':
-        pass
+        print("Waiting for feedback")
 
-    print('robot control message sent!')
+    print('Robot control message sent!')
     return 1
-
-
-def robot_motor_turn(angle):
-    print("Robot turn %d angle", angle)
-    # robot_control("turn", angle)
-    return 1
-
-
-def robot_motor_forward(distance):
-    print("Robot go forward %d distance", distance)
-    # robot_control("forward", distance)
-    return -1
 
 
 # the absoulte position and angling
-def motor_control(x, y, theta, serial_port):
-    robot_control("turn", theta - current_state[theta], serial_port)
-    # calculate
-    distance = ((x - current_state[x]) ** 2 + (y - current_state[y]) ** 2) ** (1 / 2)
 
-    # perfer to cut the distance to piece, so that we can run the obstacle avoidence at the same time.
-    robot_control('forward', distance, serial_port)
-
-    return 1
 
 # encode image
 def make_request_image(URL, image, wait=False):
@@ -99,8 +75,10 @@ def make_request(URL, data, wait=False):
 def main_loop():
     pass
 
+
 def robot_position_update():
     pass
+
 
 # Check port
 def portIsUsable(portName):
@@ -111,13 +89,9 @@ def portIsUsable(portName):
         return False
 
 
-
 # the current state of the robot
-# if we use accel and gyro, we will get this from them.
+# x, y beinig the positiom, and theta as the heading
 current_state = {'x': 0, 'y': 0, 'theta': 0}
-
-
-
 
 if __name__ == "__main__":
     print("Program init")
@@ -127,23 +101,23 @@ if __name__ == "__main__":
         print("Try to connect to " + port)
         sleep(2)
     ser = serial.Serial(port=port, timeout=10, baudrate=9600)
-
+    print("Arduino connected")
     # TODO: the hand shake process to make sure it's connected
+    sleep(2)
     print("Start controlling")
 
-    robot_control('forward', 10, ser)
-    print("Forwarded")
-    sleep(10)
-    robot_control('turn', 90, ser)
-    print("Left")
-    sleep(2)
-    robot_control('turn', -90, ser)
-    print("right")
-    sleep(2)
-
+    while 1:
+        print("Forwarded")
+        robot_control('forward', 1000, ser)
+        sleep(2)
+        robot_control('turn', 90, ser)
+        sleep(2)
+        robot_control('turn', -90, ser)
+        sleep(2)
+        robot_control('forward', -1000, ser)
+        sleep(2)
     ser.close()
     print("Closed " + port)
-
 
     # # the first thread is the main one that will send
     # main_thread = Thread(target=main_loop, args=())

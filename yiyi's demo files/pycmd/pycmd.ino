@@ -42,6 +42,7 @@ const double robot_motor_radius_of_turn = robot_motor_to_motor_distance / 2;
 int turn_90_degree_steps = 200;
 int quarter_wheel_step_number = 50;
 int whole_wheel_step_number = 200;
+bool processed = 1;
 
 String command;
 void setup() {
@@ -55,12 +56,23 @@ void setup() {
   Serial.begin(9600);
 }
 void loop() {
+
   if (Serial.available() > 0) {
     command = Serial.readString();
-  }else{
-    dont_move();
+    processed = 0;
+  } else {
+    if (processed == 0) {
+      //go_forward(1000);
+      process_command(command);
+      Serial.println("done");
+      processed = 1;
+    } else {
+      //process_command("300000\n");
+    }
   }
-  process_command(command);
+
+
+
 
 }
 /*
@@ -75,11 +87,16 @@ void process_command(String incoming_command) {
     second most significant digit is direction of the movment
     one of: (0) left or backward (1) right or forward
   */
-  int command_int = incoming_command.toInt();
-  int movement_type = command_int / 100000;
-  int direction_of_movement = (command_int / 10000) % 10;
-  int data_value = command_int % 10000;
-
+  int command_tag = incoming_command.substring(0, 2).toInt();
+  int data_value = incoming_command.substring(2, 6).toInt();
+  int movement_type = command_tag / 10;
+  int direction_of_movement = command_tag % 10;
+/*
+  Serial.println(command_tag);
+  Serial.println(movement_type);
+  Serial.println(direction_of_movement);
+  Serial.println(data_value);
+  */
   switch (movement_type) {
     case MOVE_STRAIGHT:
       if (direction_of_movement == FORWARD)
@@ -95,8 +112,7 @@ void process_command(String incoming_command) {
       break;
     case STOP:
       dont_move();
-      Serial.println("stopped");
-      break;
+      return;
     /*case TURN:
       if (direction_of_movement == RIGHT)
         turn_right_degrees(data_value);
@@ -104,9 +120,9 @@ void process_command(String incoming_command) {
         turn_left(data_value);*/
     default:
       //nothing to default
+      Serial.println("deafult");
       break;
   }
-  Serial.println("done");
 }
 
 
@@ -186,5 +202,5 @@ void step_single_right() {
   delayMicroseconds(500);
 }
 void dont_move() {
-  ;
+
 }
