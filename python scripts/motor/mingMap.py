@@ -66,7 +66,9 @@ MODE_2_DISABLED = 1
 
 map_point = False
 
-mode_lock = threading.Lock
+revert = False
+
+
 
 
 # helper function to reset the current coordinates and parameter array.
@@ -426,15 +428,26 @@ def patrol_mode():
 
     # if the queue is updated
     global current_patrol_point
+    global revert
+
     if len(patrol_path) == 0:
         print("Map Needed or No patrol path loaded")
         return
-    if current_patrol_point != len(patrol_path):
-        print("Patrol point %d" % current_patrol_point)
-        motor_control(patrol_path[current_patrol_point]['x'], patrol_path[current_patrol_point]['y'], ser)
-        current_patrol_point += 1
+    print("Patrol point %d" % current_patrol_point)
+    motor_control(patrol_path[current_patrol_point]['x'], patrol_path[current_patrol_point]['y'], ser)
+    if revert:
+        current_patrol_point -= 1
+        if current_patrol_point < 0:
+            current_patrol_point = 1
+            revert = False
     else:
-        print("Patrol Completed")
+        current_patrol_point += 1
+        if current_patrol_point >= len(patrol_path):
+            current_patrol_point = len(patrol_path) - 1
+            revert = True
+    return 
+
+
 
 
 """
@@ -447,6 +460,8 @@ def robot_mode_main():
     global ser
     global current_patrol_point
     global boundary_maps
+    global patrol_path
+    global revert
 
     while True:
 
@@ -482,10 +497,8 @@ def robot_mode_main():
                     # if the len is not the same, that meaans it's the new boundary
                     if len(new_path) != len(patrol_path):
                         patrol_path = new_path
-                        copy_list = copy.copy(patrol_path)
-                        while not copy_list:
-                            patrol_path.append(copy_list.pop())
                         current_patrol_point = 0
+                        revert = False
 
                 else:
                     patrol_path = {}
@@ -549,7 +562,7 @@ def serial_read():
 
         if current_mode == 1:
 
-            current_message = ser.readline().decode("utf-8")
+            #current_message = ser.readline().decode("utf-8")
 
             if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
                 'cmd'] == "turn":
