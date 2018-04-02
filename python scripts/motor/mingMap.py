@@ -6,7 +6,6 @@ import sys
 import glob
 import queue
 import copy
-import matplotlib
 import re
 import requests
 import json
@@ -58,7 +57,7 @@ DEBUG = 0
 
 ARDUINO = 0
 
-NO_CAR = 1
+NO_CAR = 0
 
 map_point = False
 
@@ -101,7 +100,7 @@ def motor_control(x, y, serial_port):
 
     if NO_CAR == 1:
         sleep(2)
-        print("Arrived at x: {0}, y: {1}".format(x, y))
+        print("A      rrived at x: {0}, y: {1}".format(x, y))
 
     return
 
@@ -574,6 +573,8 @@ if __name__ == "__main__":
         sleep(2)
         if port == 'COM13':
             port = 'COM15'
+        else:
+            port = '/dev/ttyACM0'
 
     ser = serial.Serial(port=port, timeout=10, baudrate=9600)
 
