@@ -56,7 +56,10 @@ serial_message = queue.Queue()
 
 DEBUG = 0
 
-ARDUINO = 1
+ARDUINO = 0
+
+NO_CAR = 1
+map_point = False
 
 
 # helper function to reset the current coordinates and parameter array.
@@ -77,6 +80,11 @@ def resetStates():
 
 # Function call which tells the robot to go to a certain X,Y coordinate.
 def motor_control(x, y, serial_port):
+
+    if NO_CAR == 1:
+        sleep(2)
+        print("Arrived at x: {0}, y: {1}".format(x, y))
+    return
     # calculates the angle based on the difference of the current location and the
     # destination X,Y
 
@@ -111,13 +119,14 @@ def robot_control(command, arg1, serial_port):
     global message
     global current_mode
 
+    # ADding 0 at the front to work with patrol mode and maual mode
     if command == 'forward':
-        message = "1" + ("1" if arg1 >= 0 else "0") + str(abs(arg1)).zfill(4)
+        message = "01" + ("1" if arg1 >= 0 else "0") + str(abs(arg1)).zfill(4)
     elif command == 'turn':
-        message = "2" + ("1" if arg1 >= 0 else "0") + str(abs(arg1)).zfill(4)
+        message = "02" + ("1" if arg1 >= 0 else "0") + str(abs(arg1)).zfill(4)
     elif command == 'stop':
         # there are two way to stop: one is natural one is interrupt stop/
-        message = "3" + str(0).zfill(5)
+        message = "03" + str(0).zfill(5)
 
     # only forward and turn will reach here
 
@@ -166,10 +175,10 @@ def serial_message_parser(one_message):
     received_coordinate = {}
 
     # remove the mapping tag
-    if one_message[:2] == "M_":
-        one_message = one_message[2:]
+    # if one_message[:2] == "M_":
+    #     one_message = one_message[2:]
 
-    data = re.findall(r"[-+]?\d*\.\d+|\d+", one_message)
+    data = re.findall(r"[-+]?\d*\.\d+|\d+", str(one_message))
     # IF the data is corrupted
     if len(data) != 2:
         received_coordinate['cmd'] = "forward"
@@ -223,9 +232,11 @@ def update_current_coordinate_from_serial():
 
         print(current_message)
 
-        if current_message[:2] == "M_":
-            serial_message.put(current_message[2:])
-            break
+        # if current_message[:1] == "M":
+        #     serial_message.put(current_message[2:])
+        #     print("Message reverted")
+        #     break
+
 
         parsed_message = serial_message_parser(current_message)
         print(parsed_message)
@@ -235,6 +246,7 @@ def update_current_coordinate_from_serial():
 
         elif parsed_message["cmd"] == "turn":
             delta_angle += parsed_message['arg1']
+            break
 
     print("d_distance = " + str(delta_distance) + " d_angle = " + str(delta_angle))
 
@@ -295,12 +307,15 @@ def mapping_mode():
     # """
 
     global boundary_map
+    global map_point
     # de queue
-    update_current_coordinate_from_serial()
-    boundary_map.put(current_coord)
-    if DEBUG != 1:
-        make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
-
+    if map_point:
+        print("Add New Way point!")
+        update_current_coordinate_from_serial()
+        boundary_map.put(current_coord)
+        if DEBUG != 1:
+            make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
+        map_point = False
     # global current_coord
     # global serial_message
     #
@@ -355,8 +370,11 @@ def patrol_mode():
         print("Map Needed or No patrol path loaded")
         return
     if current_patrol_point != len(patrol_path):
+        print("Patrol point %d" % current_patrol_point)
         motor_control(patrol_path[current_patrol_point]['x'], patrol_path[current_patrol_point]['y'], ser)
         current_patrol_point += 1
+    else:
+        print("Patrol Completed")
 
 
 """
@@ -367,7 +385,7 @@ Thread functions
 def robot_mode_main():
     global current_mode
     global ser
-
+    global current_patrol_point
     while True:
 
         if DEBUG != 1:
@@ -409,14 +427,14 @@ def robot_mode_main():
                         current_patrol_point = 0
 
             if not serial_message.empty():
-                mapping_mode()
-            else:
-                patrol_mode()
+                print("Mapping points are not completed")
+                # mapping_mode()
+
+            patrol_mode()
         elif current_mode == mode['Manual']:
             if DEBUG != 1:
                 location = make_request("http://griin.today/API/current_target", "GET")
                 print(location)
-
                 try:
                     float(location['x'])
                     float(location['y'])
@@ -427,10 +445,11 @@ def robot_mode_main():
                 location = {"x": 0, "y": 0}
 
             if not serial_message.empty():
-                mapping_mode()
-            else:
-                print("Going to: " + str(int(location['x'])) + " " + str(int(location['y'])))
-                motor_control(int(location['x']), int(location['y']), ser)
+                # mapping_mode()
+                pass
+
+            print("Going to: " + str(int(location['x'])) + " " + str(int(location['y'])))
+            motor_control(int(location['x']), int(location['y']), ser)
         else:
             assert "Mode is not defined!"
         sleep(2)
@@ -445,6 +464,7 @@ def serial_read():
     global current_mode
     global ser
     global serial_message
+    global map_point
 
     last_message = ""
     current_message = ""
@@ -454,9 +474,13 @@ def serial_read():
         if current_mode == mode['Mapping']:
             current_message = ser.readline().decode("utf-8")
 
-            if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
-                'cmd'] == "turn":
-                current_message = "M_" + current_message
+            # if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
+            #     'cmd'] == "turn":
+            #
+            #     current_message = "M_" + current_message
+
+            if serial_message_parser(current_message)['cmd'] == "turn":
+                map_point = True
 
             serial_message.put(current_message)
 
@@ -464,8 +488,7 @@ def serial_read():
 
             print("thread serial read ------------ " + current_message + str(serial_message.qsize()))
 
-            # change the signal from turn to forward, then update the map
-            last_message = current_message
+            # last_message = current_message
 
     # last_message = ""
     # current_message = ""
@@ -509,7 +532,7 @@ if __name__ == "__main__":
     print("Start controlling")
     print("Debug mode is " + str(DEBUG))
     print("Arduino mode is " + str(ARDUINO))
-
+    print("No car mode is " + str(NO_CAR))
     current_mode = 1
 
     # # the first thread is the main one that will send
