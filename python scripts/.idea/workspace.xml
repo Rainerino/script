@@ -12,7 +12,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/python_scripts$motor_controller.coverage" NAME="motor_controller Coverage Results" MODIFIED="1522310368472" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/motor" />
     <SUITE FILE_PATH="coverage/python_scripts$http.coverage" NAME="http Coverage Results" MODIFIED="1522444653960" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/python_scripts$python_scripts.coverage" NAME="python scripts Coverage Results" MODIFIED="1522651455111" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/python_scripts$python_scripts.coverage" NAME="python scripts Coverage Results" MODIFIED="1522654562482" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/python_scripts$map.coverage" NAME="map Coverage Results" MODIFIED="1521565161512" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/mapping" />
     <SUITE FILE_PATH="coverage/python_scripts$logic.coverage" NAME="logic Coverage Results" MODIFIED="1521100765542" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
@@ -30,20 +30,25 @@
       <file leaf-file-name="mingMap.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="469" column="24" lean-forward="true" selection-start-line="469" selection-start-column="24" selection-end-line="469" selection-end-column="24" />
+            <state relative-caret-position="238">
+              <caret line="236" column="40" selection-start-line="236" selection-start-column="40" selection-end-line="236" selection-end-column="40" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
+                <element signature="e#206#705#0" />
                 <element signature="e#1123#1385#0" />
+                <element signature="e#1594#2179#0" />
                 <element signature="e#2364#3177#0" />
                 <element signature="e#3261#3424#0" />
                 <element signature="e#3472#3593#0" />
                 <element signature="e#3640#4493#0" />
                 <element signature="e#4418#4595#0" />
-                <element signature="e#4678#5701#0" />
                 <element signature="e#4560#5433#0" />
+                <element signature="e#6924#8440#0" />
                 <element signature="e#7362#7384#0" />
                 <element signature="e#9093#9618#0" />
+                <element signature="e#9477#11764#0" />
+                <element signature="e#11769#13566#0" />
+                <element signature="e#12789#12808#0" />
                 <element signature="e#13600#14585#0" />
               </folding>
             </state>
@@ -409,14 +414,14 @@
       <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="11" sideWeight="0.49960968" weight="0.3504823" />
-      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.7496252" visible="true" weight="0.43203124" />
+      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.7466267" visible="true" weight="0.45703125" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.27436283" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49812734" weight="0.14609376" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="right" auto_hide="true" id="SciView" order="4" show_stripe_button="false" type="FLOATING" />
-      <window_info anchor="right" id="Structure" order="6" sideWeight="0.25037482" side_tool="true" visible="true" weight="0.43203124" />
+      <window_info anchor="right" id="Structure" order="6" sideWeight="0.25337332" side_tool="true" visible="true" weight="0.45703125" />
       <window_info id="Favorites" order="1" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39871383" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -752,20 +757,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="469" column="24" lean-forward="true" selection-start-line="469" selection-start-column="24" selection-end-line="469" selection-end-column="24" />
+        <state relative-caret-position="238">
+          <caret line="236" column="40" selection-start-line="236" selection-start-column="40" selection-end-line="236" selection-end-column="40" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#206#705#0" />
             <element signature="e#1123#1385#0" />
+            <element signature="e#1594#2179#0" />
             <element signature="e#2364#3177#0" />
             <element signature="e#3261#3424#0" />
             <element signature="e#3472#3593#0" />
             <element signature="e#3640#4493#0" />
             <element signature="e#4418#4595#0" />
-            <element signature="e#4678#5701#0" />
             <element signature="e#4560#5433#0" />
+            <element signature="e#6924#8440#0" />
             <element signature="e#7362#7384#0" />
             <element signature="e#9093#9618#0" />
+            <element signature="e#9477#11764#0" />
+            <element signature="e#11769#13566#0" />
+            <element signature="e#12789#12808#0" />
             <element signature="e#13600#14585#0" />
           </folding>
         </state>

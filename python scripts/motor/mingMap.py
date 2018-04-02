@@ -80,7 +80,6 @@ def resetStates():
 
 # Function call which tells the robot to go to a certain X,Y coordinate.
 def motor_control(x, y, serial_port):
-
     if NO_CAR == 1:
         sleep(2)
         print("Arrived at x: {0}, y: {1}".format(x, y))
@@ -232,11 +231,11 @@ def update_current_coordinate_from_serial():
 
         print(current_message)
 
-        # if current_message[:1] == "M":
-        #     serial_message.put(current_message[2:])
-        #     print("Message reverted")
-        #     break
-
+        if current_message[:1] == "M":
+            # if it's a map point message, remove the map point tag and put it back
+            serial_message.put(current_message[2:])
+            print("Message reverted----!")
+            break
 
         parsed_message = serial_message_parser(current_message)
         print(parsed_message)
@@ -246,7 +245,7 @@ def update_current_coordinate_from_serial():
 
         elif parsed_message["cmd"] == "turn":
             delta_angle += parsed_message['arg1']
-            break
+            # break
 
     print("d_distance = " + str(delta_distance) + " d_angle = " + str(delta_angle))
 
@@ -308,7 +307,7 @@ def mapping_mode():
 
     global boundary_map
     global map_point
-    # de queue
+    # Use map point to signal that there is a new point to be added. Otherwise the main thread skip everything
     if map_point:
         print("Add New Way point!")
         update_current_coordinate_from_serial()
@@ -452,7 +451,7 @@ def robot_mode_main():
             motor_control(int(location['x']), int(location['y']), ser)
         else:
             assert "Mode is not defined!"
-        sleep(2)
+        # sleep(2)
 
 
 def serial_read():
@@ -474,13 +473,13 @@ def serial_read():
         if current_mode == mode['Mapping']:
             current_message = ser.readline().decode("utf-8")
 
-            # if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
-            #     'cmd'] == "turn":
-            #
-            #     current_message = "M_" + current_message
-
-            if serial_message_parser(current_message)['cmd'] == "turn":
+            if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
+                'cmd'] == "turn":
                 map_point = True
+                current_message = "M_" + current_message
+
+            # if serial_message_parser(current_message)['cmd'] == "turn":
+            #     map_point = True
 
             serial_message.put(current_message)
 
@@ -488,7 +487,7 @@ def serial_read():
 
             print("thread serial read ------------ " + current_message + str(serial_message.qsize()))
 
-            # last_message = current_message
+            last_message = current_message
 
     # last_message = ""
     # current_message = ""
