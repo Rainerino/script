@@ -101,7 +101,14 @@ def motor_control(x, y):
         return
     # calculates angle
     destinationAngle = math.degrees(math.atan2(deltaY, deltaX))
+    print(destinationAngle)
     angleToChange = destinationAngle - current_coord.theta
+    print(angleToChange)
+
+    if angleToChange > 180:
+        angleToChange -= 360
+    if angleToChange < -180:
+        angleToChange += 360
 
     delta_distance = (deltaX ** 2 + deltaY ** 2) ** (1 / 2)
 
@@ -142,7 +149,7 @@ def robot_control(command, arg1):
     if command == 'forward':
         message = "01" + ("1" if arg1 >= 0 else "0") + str(abs(arg1)).zfill(4)
     elif command == 'turn':
-        message = "02" + ("1" if arg1 >= 0 else "0") + str(abs(arg1)).zfill(4)
+        message = "02" + ("0" if arg1 >= 0 else "1") + str(abs(arg1)).zfill(4)
     elif command == 'stop':
         # there are two way to stop: one is natural one is interrupt stop/
         message = "03" + str(0).zfill(5)
@@ -308,7 +315,6 @@ def update_current_coordinate(delta_distance, delta_angle):
         current_coord.theta += 360
 
 
-
 """
 This part are the code for modes
 Contains: 
@@ -353,62 +359,6 @@ def mapping_mode():
 
     if isAngleChanged and delta_distance != 0:
         isAngleChanged = 0
-    # delta_distance = 0
-    # delta_angle = 0
-
-    # Use map point to signal that there is a new point to be added. Otherwise the main thread skip everything
-    # if map_point:
-    #     print("Add New Way point!")
-    #
-    #     # parsed_message = serial_message_parser(ser.readline().decode("utf-8"))
-    #     # delta_distance += parsed_message['arg1']
-    #     # delta_angle += parsed_message['arg1']
-    #     # update_current_coordinate(delta_distance, delta_angle)
-    #
-    #     update_current_coordinate_from_serial()
-    #     boundary_map.put(current_coord)
-    #     if DEBUG != 1:
-    #         make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
-    #     map_point = False
-
-    # global current_coord
-    # global serial_message
-    #
-    # delta_distance = 0
-    # delta_angle = 0
-    # print("Start")
-    #
-    # while not serial_message.empty():
-    #
-    #     current_message = serial_message.get()
-    #     serial_message.task_done()
-    #
-    #     print(current_message)
-    #
-    #     if current_message[:2] == "M_":
-    #         boundary_map.put(current_coord)
-    #
-    #     parsed_message = serial_message_parser(current_message)
-    #
-    #     print(parsed_message)
-    #
-    #     if parsed_message["cmd"] == "forward":
-    #         delta_distance = parsed_message['arg1']
-    #
-    #     elif parsed_message["cmd"] == "turn":
-    #         delta_angle = parsed_message['arg1']
-    #
-    #     print("d_distance = " + str(delta_distance) + " d_angle = " + str(delta_angle))
-    #
-    #     update_current_coordinate(delta_distance, delta_angle)
-    #
-    #     current_coord.print_coordinate()
-    #
-    # print("End")
-    #
-    #
-    # make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
-    #
 
 
 # prototype mode for patrol
@@ -477,7 +427,7 @@ def robot_mode_main():
                 resetStates()
                 ser.write("1000000".encode())
                 print("--------------initalized mapping!")
-                make_request("http://griin.today/API/boundaries", "POST", {"x":0, "y":0})
+                make_request("http://griin.today/API/boundaries", "POST", {"x": 0, "y": 0})
             mapping_mode()
 
         elif current_mode == mode['Patrol']:
@@ -504,8 +454,11 @@ def robot_mode_main():
             make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
 
         elif current_mode == mode['Manual']:
-            # if change == 1 and not serial_message.empty():
-            #     finish_mapping()
+            if change == 1:
+                make_request("http://griin.today/API/current_location", "POST",
+                             current_coord.return_coordinate_to_dict())
+                print("-------------initial Manual Mode:")
+                current_coord.print_coordinate()
 
             if DEBUG != 1:
                 location = make_request("http://griin.today/API/current_target", "GET")
@@ -524,9 +477,10 @@ def robot_mode_main():
             if abs(location['x'] - current_coord.x) < 3 and abs(location['y'] - current_coord.y) < 3:
                 pass
             else:
+                current_coord.print_coordinate()
                 motor_control(float(location['x']), float(location['y']))
             # motor_control(float(location['x']), float(location['y']))
-
+                current_coord.print_coordinate()
             make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
             current_coord.print_coordinate()
         else:
