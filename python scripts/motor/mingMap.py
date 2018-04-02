@@ -9,6 +9,7 @@ import copy
 import matplotlib
 import re
 import requests
+import json
 
 
 class Coordinate:
@@ -16,7 +17,7 @@ class Coordinate:
     creates the class of x,y, theta corrdinate of the robot
     """
 
-    def __init__(self, x=0, y=0, theta=0):
+    def __init__(self, x=0, y=0, theta=90):
         self.x = x
         self.y = y
         self.theta = theta
@@ -27,6 +28,9 @@ class Coordinate:
         """
         print("coordinate: x: {0}, y: {1}, theta: {2}".format(self.x, self.y, self.theta))
 
+    def return_dict_for_server(self):
+        return {"x": self.x, "y": self.y}
+
 
 # Current Coordinates of the robot.
 # Angle is kept between 180 and -180
@@ -35,20 +39,23 @@ current_coord = Coordinate()
 
 patrol_path = []
 
-mode = {"Mapping": 0, "Manual": 1, "Patrol": 2}
+mode = {"Manual": 0, "Mapping": 1, "Patrol": 2}
 
 current_mode = 0
 
 ser = serial
 
-map_point_acquired = False
+map_point_acquired = queue.Queue()
 
 new_path_acquired = False
 
 current_patrol_point = 0
 
-boundary_map = queue.Queue(maxsize=1000)
-serial_message = queue.Queue(maxsize=1000)
+boundary_map = queue.Queue()
+
+serial_message = queue.Queue()
+
+DEBUG = 0
 
 
 # helper function to reset the current coordinates and parameter array.
@@ -60,8 +67,10 @@ def resetStates():
     global current_coord
     global boundary_map
     global serial_message
+
     current_coord = Coordinate()
     boundary_map = queue.Queue(maxsize=1000)
+    boundary_map.put(current_coord)
     serial_message = queue.Queue(maxsize=1000)
 
 
@@ -132,16 +141,13 @@ def robot_control(command, arg1, serial_port):
 
 
 # url string, data string
-def make_request(URL, http_mode='GET', data={}, return_value=False):
+def make_request(URL, http_mode='GET', data=None):
     if http_mode == 'GET':
-        requests.get(URL)
-        return
+        r = requests.get(URL)
+        return json.loads(r.content.decode("utf-8"))
     else:
-        r = requests.post(URL, data)
-        if return_value:
-            return r.content
-        else:
-            return
+        requests.post(URL, data)
+        return
 
 
 # Check port
@@ -163,18 +169,31 @@ def serial_message_parser(one_message):
     :return:
     """
     received_coordinate = {}
-    data = [int(s) for s in one_message.split() if s.isdigit()]
-    if data[0] != 0:
+
+    # remove the mapping tag
+    if one_message[:2] == "M_":
+        one_message = one_message[2:]
+
+    data = re.findall(r"[-+]?\d*\.\d+|\d+", one_message)
+    # IF the data is corrupted
+    if len(data) != 2:
         received_coordinate['cmd'] = "forward"
-        received_coordinate['arg1'] = data[0]
+        received_coordinate['arg1'] = 0
+        return received_coordinate
+
+    # if the daa is good
+
+    if float(data[0]) != 0:
+        received_coordinate['cmd'] = "forward"
+        received_coordinate['arg1'] = float(data[0])
     else:
         received_coordinate['cmd'] = "turn"
-        received_coordinate['arg1'] = data[1]
+        received_coordinate['arg1'] = float(data[1])
 
     return received_coordinate
 
 
-def update_current_coordinate(delta_distance,  delta_angle):
+def update_current_coordinate(delta_distance, delta_angle):
     """
     Function call which updates Current_Coord
     Left angle == POSITIVE, Right angle == NEGATIVE
@@ -184,24 +203,20 @@ def update_current_coordinate(delta_distance,  delta_angle):
     :param delta_distance:
     :return:
     """
-    changeInDist = 0
-
     global current_coord
 
-    current_coord.theta += delta_angle
+    # the current heading is where the distance headed, so we update the angle in the end
 
-    if delta_distance == 0:
-        return
+    current_coord.x += round((delta_distance * math.cos(math.radians(current_coord.theta))), 2)
+    current_coord.y += round((delta_distance * math.sin(math.radians(current_coord.theta))), 2)
 
+    delta_angle = delta_angle % 360
     # keeps angle between 0 and 360
-
-    if current_coord.theta > 360:
+    current_coord.theta += round(delta_angle, 2)
+    if current_coord.theta > 180:
         current_coord.theta -= 360
-    if current_coord.theta < 0:
+    if current_coord.theta < -180:
         current_coord.theta += 360
-
-    current_coord.x += changeInDist * math.cos(current_coord.theta)
-    current_coord.y += changeInDist * math.sin(current_coord.theta)
 
 
 def update_current_coordinate_from_serial():
@@ -211,26 +226,41 @@ def update_current_coordinate_from_serial():
     True of add a way point with angle change
     """
     global current_coord
+    global serial_message
+
     delta_distance = 0
+    delta_angle = 0
     print("Start")
+
     while not serial_message.empty():
-        current_message = serial_message_parser(serial_message.get())
+
+        current_message = serial_message.get()
+        serial_message.task_done()
+
         print(current_message)
-        if current_message["cmd"] == "forward":
-            delta_distance += current_message['arg1']
-        else:
-            delta_angle = current_message['arg1']
-            update_current_coordinate(delta_distance, delta_angle)
-            current_coord.print_coordinate()
-            print("Good End")
-            return True
 
-    print("Bad End")
-    global current_coord
+        if current_message[:2] == "M_":
+            serial_message.put(current_message[2:])
+            break
+
+        parsed_message = serial_message_parser(current_message)
+        print(parsed_message)
+
+        if parsed_message["cmd"] == "forward":
+            delta_distance += parsed_message['arg1']
+
+        elif parsed_message["cmd"] == "turn":
+            delta_angle += parsed_message['arg1']
+
+    print("d_distance = " + str(delta_distance) + " d_angle = " + str(delta_angle))
+
+    update_current_coordinate(delta_distance, delta_angle)
+
     current_coord.print_coordinate()
-    update_current_coordinate(delta_distance, 0)
 
-    return False
+    print("End")
+
+    return
 
 
 """
@@ -247,14 +277,11 @@ manual mode
 # **Unsure how the distance and angle will be updated from the robot.
 def mapping_mode():
     global boundary_map
-    global map_point_acquired
-
-    if map_point_acquired:
-        print("Adding new waypoint")
-        # de queue
-        update_current_coordinate_from_serial()
-        boundary_map.put(current_coord)
-        map_point_acquired = False
+    # de queue
+    update_current_coordinate_from_serial()
+    boundary_map.put(current_coord)
+    if DEBUG != 1:
+        make_request("http://griin.today/API/boundaries", "POST", current_coord.return_dict_for_server())
 
 
 # prototype mode for patrol
@@ -278,23 +305,43 @@ def patrol_mode():
         motor_control(patrol_path[current_patrol_point].x, patrol_path[current_patrol_point].y, ser)
         current_patrol_point += 1
 
-
 """
 Thread functions
 """
 
 
 def robot_mode_main():
+    global current_mode
+    global ser
+    change = 0
     while True:
+        if DEBUG != 1:
+            temp = make_request("http://griin.today/API/current_mode", "GET")['current_mode']
+            if temp != current_mode:
+                change = 1
+            else:
+                change = 0
+            current_mode = temp
+
+        if DEBUG == 1:
+            current_mode = 1
+            change = 0
+        print("Current Mode: " + str(current_mode))
+
         if current_mode == mode['Mapping']:
-            print("Mapping Mode")
+            if change == 1:
+                resetStates()
+                ser.write("1000000".encode())
+
             mapping_mode()
-        elif current_coord == mode['Patrol']:
+
+        elif current_mode == mode['Patrol']:
             if not serial_message.empty():
                 update_current_coordinate_from_serial()
             else:
                 patrol_mode()
-        sleep(2)
+
+
 
 
 def serial_read():
@@ -306,32 +353,32 @@ def serial_read():
     global current_mode
     global ser
     global serial_message
+
+    last_message = ""
+    current_message = ""
     while True:
         # only add message if it's mapping mode
         if current_mode == mode['Mapping']:
-            last_message = ser.readline()
-            serial_message.put(last_message)
+            current_message = ser.readline().decode("utf-8")
+
+            if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
+                'cmd'] == "turn":
+                current_message = "M_" + current_message
+
+            serial_message.put(current_message)
+
             # if angle is detected
 
-            print(last_message)
+            print("thread serial read ------------ " + current_message + str(serial_message.qsize()))
 
-            if serial_message_parser(last_message)['cmd'] == "turn":
-                global map_point_acquired
-                map_point_acquired = True
-            serial_message.task_done()
-
-
-def send_coordinate_request():
-    global current_coord
-    current_coord.print_coordinate()
-    sleep(2)
-    # make_request("http://griin.today/API/boundaries", "POST", {"x": coordinate.x, "y": coordinate.y})
+            # change the signal from turn to forward, then update the map
+            last_message = current_message
 
 
 if __name__ == "__main__":
     print("Program init")
 
-    port = 'COM14'
+    port = 'COM15'
     while not portIsUsable(port):
         print("Try to connect to " + port)
         sleep(2)
@@ -344,19 +391,16 @@ if __name__ == "__main__":
     # # the first thread is the main one that will send
     main_thread = Thread(target=robot_mode_main, args=())
 
-    coordinate_update_thread = Thread(target=send_coordinate_request, args=())
-
     serial_read_thread = Thread(target=serial_read, args=())
 
     main_thread.start()
     serial_read_thread.start()
-    coordinate_update_thread.start()
 
     # TODO image!!
 
     main_thread.join()
     serial_read_thread.join()
-    coordinate_update_thread.join()
+
     while True:
         pass
 
