@@ -31,8 +31,8 @@
       <file leaf-file-name="mingMap.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="447" column="11" selection-start-line="447" selection-start-column="11" selection-end-line="447" selection-end-column="11" />
+            <state relative-caret-position="320">
+              <caret line="488" column="43" lean-forward="true" selection-start-line="488" selection-start-column="43" selection-end-line="488" selection-end-column="43" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#206#705#0" />
@@ -45,12 +45,10 @@
                 <element signature="e#4678#5701#0" />
                 <element signature="e#6452#7426#0" />
                 <element signature="e#7236#7873#0" />
-                <element signature="e#7362#7384#0" />
-                <element signature="e#7791#8013#0" />
-                <element signature="e#8082#8121#0" />
-                <element signature="e#8199#8318#0" />
+                <element signature="e#9054#9074#0" />
+                <element signature="e#10922#11689#0" />
+                <element signature="e#14612#16437#0" />
                 <element signature="e#12789#12808#0" />
-                <element signature="e#13600#14585#0" />
               </folding>
             </state>
           </provider>
@@ -68,7 +66,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>make</find>
       <find>make_</find>
       <find>Start</find>
       <find>last_command</find>
@@ -98,6 +95,7 @@
       <find>int(</find>
       <find>angle</find>
       <find>sleep</find>
+      <find>motor_con</find>
     </findStrings>
   </component>
   <component name="HierarchyBrowserManager">
@@ -409,21 +407,20 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="720" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5003903" side_tool="true" weight="0.3268366" />
       <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="11" sideWeight="0.49960968" weight="0.3504823" />
-      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.60569715" visible="true" weight="0.46875" />
+      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.71214396" visible="true" weight="0.52421874" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.27436283" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49812734" weight="0.14609376" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="right" auto_hide="true" id="SciView" order="4" show_stripe_button="false" type="FLOATING" />
-      <window_info anchor="right" id="Structure" order="6" sideWeight="0.39430285" side_tool="true" visible="true" weight="0.46875" />
+      <window_info anchor="right" id="Structure" order="6" sideWeight="0.28785607" side_tool="true" visible="true" weight="0.52421874" />
       <window_info id="Favorites" order="1" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39730135" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -752,8 +749,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="447" column="11" selection-start-line="447" selection-start-column="11" selection-end-line="447" selection-end-column="11" />
+        <state relative-caret-position="320">
+          <caret line="488" column="43" lean-forward="true" selection-start-line="488" selection-start-column="43" selection-end-line="488" selection-end-column="43" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
             <element signature="e#206#705#0" />
@@ -766,12 +763,10 @@
             <element signature="e#4678#5701#0" />
             <element signature="e#6452#7426#0" />
             <element signature="e#7236#7873#0" />
-            <element signature="e#7362#7384#0" />
-            <element signature="e#7791#8013#0" />
-            <element signature="e#8082#8121#0" />
-            <element signature="e#8199#8318#0" />
+            <element signature="e#9054#9074#0" />
+            <element signature="e#10922#11689#0" />
+            <element signature="e#14612#16437#0" />
             <element signature="e#12789#12808#0" />
-            <element signature="e#13600#14585#0" />
           </folding>
         </state>
       </provider>
