@@ -32,7 +32,7 @@ class Coordinate:
         return {"x": self.x, "y": self.y}
 
     def return_coordinate_to_dict(self):
-        return {"x": self.x, "y": self.y, "theta": self.theta}
+        return {"x": self.x, "y": self.y, "angle": self.theta}
 
 
 # Current Coordinates of the robot.
@@ -59,6 +59,7 @@ DEBUG = 0
 ARDUINO = 0
 
 NO_CAR = 1
+
 map_point = False
 
 
@@ -80,13 +81,11 @@ def resetStates():
 
 # Function call which tells the robot to go to a certain X,Y coordinate.
 def motor_control(x, y, serial_port):
-    if NO_CAR == 1:
-        sleep(2)
-        print("Arrived at x: {0}, y: {1}".format(x, y))
-    return
+
     # calculates the angle based on the difference of the current location and the
     # destination X,Y
 
+    print("Driver: going to x: {0}, y: {1}".format(x, y))
     deltaX = x - current_coord.x
     deltaY = y - current_coord.y
     if deltaX == 0 and deltaY == 0:
@@ -96,11 +95,23 @@ def motor_control(x, y, serial_port):
     destinationAngle = math.degrees(math.atan2(deltaY, deltaX))
     angleToChange = destinationAngle - current_coord.theta
 
-    robot_control("turn", angleToChange, serial_port)
-
     delta_distance = (deltaX ** 2 + deltaY ** 2) ** (1 / 2)
 
+    update_current_coordinate(delta_distance, angleToChange)
+
+    if NO_CAR == 1:
+        sleep(2)
+        print("Arrived at x: {0}, y: {1}".format(x, y))
+
+    return
+
+    robot_control("turn", angleToChange, serial_port)
+
     robot_control('forward', delta_distance, serial_port)
+
+
+
+    print("Driver: Arrived at x: {0}, y: {1}".format(x, y))
 
 
 # this module only send data
@@ -284,6 +295,34 @@ def update_current_coordinate(delta_distance, delta_angle):
         current_coord.theta += 360
 
 
+def finish_mapping():
+    delta_distance = 0
+    delta_angle = 0
+
+    while not serial_message.empty():
+
+        current_message = serial_message.get()
+        serial_message.task_done()
+
+        parsed_message = serial_message_parser(current_message)
+        print(parsed_message)
+
+        if parsed_message["cmd"] == "forward":
+            delta_distance += parsed_message['arg1']
+        elif parsed_message["cmd"] == "turn":
+            delta_angle += parsed_message['arg1']
+
+    update_current_coordinate(delta_distance, delta_angle)
+    print("Final mapping point: ")
+    current_coord.print_coordinate()
+    boundary_map.put(current_coord)
+    print(current_coord.return_pos_to_dict())
+
+    if DEBUG != 1:
+        make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
+        make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
+    return
+
 """
 This part are the code for modes
 Contains: 
@@ -314,7 +353,9 @@ def mapping_mode():
         boundary_map.put(current_coord)
         if DEBUG != 1:
             make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
+
         map_point = False
+
     # global current_coord
     # global serial_message
     #
@@ -385,13 +426,13 @@ def robot_mode_main():
     global current_mode
     global ser
     global current_patrol_point
+    global boundary_maps
+
     while True:
 
         if DEBUG != 1:
             temp = make_request("http://griin.today/API/current_mode", "GET")['current_mode']
-
             # update the current coordinate
-            make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
 
             if temp != current_mode:
                 change = 1
@@ -399,7 +440,6 @@ def robot_mode_main():
                 change = 0
 
             current_mode = temp
-
         else:
             current_mode = 1
             change = 0
@@ -410,27 +450,40 @@ def robot_mode_main():
             if change == 1:
                 resetStates()
                 ser.write("1000000".encode())
+                print("--------------initalized mapping!")
             mapping_mode()
 
         elif current_mode == mode['Patrol']:
             if change == 1:
                 if DEBUG != 1:
                     global patrol_path
-                    patrol_path = make_request("http://griin.today/API/patrol_path", "GET")['patrol_path']
+                    new_path = make_request("http://griin.today/API/patrol_path", "GET")['patrol_path']
+
+                    # if the len is not the same, that meaans it's the new boundary
+                    if len(new_path) != len(patrol_path):
+                        patrol_path = new_path
+                        current_patrol_point = 0
                 else:
                     patrol_path = {}
+
                 if len(patrol_path) != 0:
                     copy_list = copy.copy(patrol_path)
                     while not copy_list:
                         patrol_path.append(copy_list.pop())
-                        current_patrol_point = 0
+                current_patrol_point = 0
 
             if not serial_message.empty():
                 print("Mapping points are not completed")
-                # mapping_mode()
+                finish_mapping()
 
             patrol_mode()
+            current_coord.print_coordinate()
+            make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
+
         elif current_mode == mode['Manual']:
+            if change == 1 and not serial_message.empty():
+                finish_mapping()
+
             if DEBUG != 1:
                 location = make_request("http://griin.today/API/current_target", "GET")
                 print(location)
@@ -443,12 +496,11 @@ def robot_mode_main():
             else:
                 location = {"x": 0, "y": 0}
 
-            if not serial_message.empty():
-                # mapping_mode()
-                pass
-
             print("Going to: " + str(int(location['x'])) + " " + str(int(location['y'])))
-            motor_control(int(location['x']), int(location['y']), ser)
+            motor_control(float(location['x']), float(location['y']), ser)
+
+            make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
+            current_coord.print_coordinate()
         else:
             assert "Mode is not defined!"
         # sleep(2)
@@ -532,7 +584,9 @@ if __name__ == "__main__":
     print("Debug mode is " + str(DEBUG))
     print("Arduino mode is " + str(ARDUINO))
     print("No car mode is " + str(NO_CAR))
-    current_mode = 1
+
+    if ARDUINO != 1:
+        current_mode = 1
 
     # # the first thread is the main one that will send
     if ARDUINO != 1:
