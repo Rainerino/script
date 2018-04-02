@@ -31,8 +31,8 @@
       <file leaf-file-name="mingMap.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="499" column="53" selection-start-line="499" selection-start-column="53" selection-end-line="499" selection-end-column="53" />
+            <state relative-caret-position="248">
+              <caret line="308" lean-forward="true" selection-start-line="308" selection-end-line="308" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#206#705#0" />
@@ -72,7 +72,6 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>int(</find>
-      <find>int(</find>
       <find>make</find>
       <find>make_</find>
       <find>Start</find>
@@ -101,6 +100,7 @@
       <find>return_pos_to_dict</find>
       <find>current_location</find>
       <find>make_request(&quot;http://griin.today/API/current_location&quot;, &quot;POST&quot;, current_coord.return_coordinate_to_dict())</find>
+      <find>int(</find>
     </findStrings>
   </component>
   <component name="HierarchyBrowserManager">
@@ -418,14 +418,14 @@
       <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="11" sideWeight="0.49960968" weight="0.3504823" />
-      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.74512744" visible="true" weight="0.29609376" />
+      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.74512744" visible="true" weight="0.4875" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.27436283" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49812734" weight="0.14609376" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="right" auto_hide="true" id="SciView" order="4" show_stripe_button="false" type="FLOATING" />
-      <window_info anchor="right" id="Structure" order="6" sideWeight="0.25487256" side_tool="true" visible="true" weight="0.29609376" />
+      <window_info anchor="right" id="Structure" order="6" sideWeight="0.25487256" side_tool="true" visible="true" weight="0.4875" />
       <window_info id="Favorites" order="1" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39730135" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -761,8 +761,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="499" column="53" selection-start-line="499" selection-start-column="53" selection-end-line="499" selection-end-column="53" />
+        <state relative-caret-position="248">
+          <caret line="308" lean-forward="true" selection-start-line="308" selection-end-line="308" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
             <element signature="e#206#705#0" />
