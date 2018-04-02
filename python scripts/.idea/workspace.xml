@@ -31,26 +31,26 @@
       <file leaf-file-name="mingMap.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="11" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
+            <state relative-caret-position="285">
+              <caret line="483" column="46" selection-start-line="483" selection-start-column="46" selection-end-line="483" selection-end-column="46" />
               <folding>
+                <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#206#705#0" />
                 <element signature="e#1123#1385#0" />
+                <element signature="e#1586#2461#0" />
+                <element signature="e#2554#3577#0" />
                 <element signature="e#3261#3424#0" />
-                <element signature="e#3472#3593#0" />
                 <element signature="e#3640#4493#0" />
                 <element signature="e#4418#4595#0" />
                 <element signature="e#4678#5701#0" />
-                <element signature="e#4560#5433#0" />
-                <element signature="e#8270#10113#0" />
+                <element signature="e#6452#7426#0" />
+                <element signature="e#7236#7873#0" />
                 <element signature="e#7362#7384#0" />
-                <element signature="e#9093#9618#0" />
                 <element signature="e#7791#8013#0" />
                 <element signature="e#8082#8121#0" />
-                <element signature="e#12341#12646#0" />
-                <element signature="e#11769#13566#0" />
-                <element signature="e#12282#13016#0" />
+                <element signature="e#14612#16437#0" />
                 <element signature="e#12789#12808#0" />
+                <element signature="e#13600#14585#0" />
               </folding>
             </state>
           </provider>
@@ -68,7 +68,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>int(</find>
       <find>make</find>
       <find>make_</find>
       <find>Start</find>
@@ -83,7 +82,6 @@
       <find>pass</find>
       <find>new_path_acquired</find>
       <find>DEBUG</find>
-      <find>sleep</find>
       <find>debug</find>
       <find>return_dict_for_server</find>
       <find>wr</find>
@@ -98,6 +96,8 @@
       <find>current_location</find>
       <find>make_request(&quot;http://griin.today/API/current_location&quot;, &quot;POST&quot;, current_coord.return_coordinate_to_dict())</find>
       <find>int(</find>
+      <find>angle</find>
+      <find>sleep</find>
     </findStrings>
   </component>
   <component name="HierarchyBrowserManager">
@@ -127,6 +127,7 @@
         <option value="$PROJECT_DIR$/motor/drafts.py" />
         <option value="$PROJECT_DIR$/internet.py" />
         <option value="$PROJECT_DIR$/proto.ipynb" />
+        <option value="$PROJECT_DIR$/test cases.txt" />
         <option value="$PROJECT_DIR$/motor/mingMap.py" />
       </list>
     </option>
@@ -415,14 +416,14 @@
       <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="11" sideWeight="0.49960968" weight="0.3504823" />
-      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.74512744" visible="true" weight="0.31796876" />
+      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.60569715" visible="true" weight="0.39453125" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.27436283" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49812734" weight="0.14609376" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="right" auto_hide="true" id="SciView" order="4" show_stripe_button="false" type="FLOATING" />
-      <window_info anchor="right" id="Structure" order="6" sideWeight="0.25487256" side_tool="true" visible="true" weight="0.31796876" />
+      <window_info anchor="right" id="Structure" order="6" sideWeight="0.39430285" side_tool="true" visible="true" weight="0.39453125" />
       <window_info id="Favorites" order="1" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39730135" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -468,20 +469,10 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="16" />
+      <option name="time" value="21" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/motor/motor_controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1411">
-          <caret line="85" column="8" selection-start-line="85" selection-start-column="8" selection-end-line="85" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/image processing/proto.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
@@ -756,28 +747,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/test cases.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="11" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
+        <state relative-caret-position="285">
+          <caret line="483" column="46" selection-start-line="483" selection-start-column="46" selection-end-line="483" selection-end-column="46" />
           <folding>
+            <element signature="e#0#11#0" expanded="true" />
             <element signature="e#206#705#0" />
             <element signature="e#1123#1385#0" />
+            <element signature="e#1586#2461#0" />
+            <element signature="e#2554#3577#0" />
             <element signature="e#3261#3424#0" />
-            <element signature="e#3472#3593#0" />
             <element signature="e#3640#4493#0" />
             <element signature="e#4418#4595#0" />
             <element signature="e#4678#5701#0" />
-            <element signature="e#4560#5433#0" />
-            <element signature="e#8270#10113#0" />
+            <element signature="e#6452#7426#0" />
+            <element signature="e#7236#7873#0" />
             <element signature="e#7362#7384#0" />
-            <element signature="e#9093#9618#0" />
             <element signature="e#7791#8013#0" />
             <element signature="e#8082#8121#0" />
-            <element signature="e#12341#12646#0" />
-            <element signature="e#11769#13566#0" />
-            <element signature="e#12282#13016#0" />
+            <element signature="e#14612#16437#0" />
             <element signature="e#12789#12808#0" />
+            <element signature="e#13600#14585#0" />
           </folding>
         </state>
       </provider>

@@ -9,6 +9,7 @@ import copy
 import re
 import requests
 import json
+import threading
 
 
 class Coordinate:
@@ -59,7 +60,13 @@ ARDUINO = 0
 
 NO_CAR = 0
 
+MODE_1_DISABLED = 1
+
+MODE_2_DISABLED = 1
+
 map_point = False
+
+mode_lock = threading.Lock
 
 
 # helper function to reset the current coordinates and parameter array.
@@ -75,14 +82,14 @@ def resetStates():
     current_coord = Coordinate()
     boundary_map = queue.Queue(maxsize=1000)
     boundary_map.put(current_coord)
-    serial_message = queue.Queue(maxsize=1000)
+    serial_message = queue.Queue()
 
 
 # Function call which tells the robot to go to a certain X,Y coordinate.
 def motor_control(x, y, serial_port):
-
     # calculates the angle based on the difference of the current location and the
     # destination X,Y
+    global ser
 
     print("Driver: going to x: {0}, y: {1}".format(x, y))
     deltaX = x - current_coord.x
@@ -96,26 +103,26 @@ def motor_control(x, y, serial_port):
 
     delta_distance = (deltaX ** 2 + deltaY ** 2) ** (1 / 2)
 
-    update_current_coordinate(delta_distance, angleToChange)
+    # update_current_coordinate(delta_distance, angleToChange)
+
+    update_current_coordinate(0, angleToChange)
+    update_current_coordinate(delta_distance, 0)
 
     if NO_CAR == 1:
         sleep(2)
-        print("A      rrived at x: {0}, y: {1}".format(x, y))
+        print("Arrived at x: {0}, y: {1}".format(x, y))
+        return
 
-    return
+    robot_control("turn", angleToChange)
 
-    robot_control("turn", angleToChange, serial_port)
-
-    robot_control('forward', delta_distance, serial_port)
-
-
+    robot_control('forward', delta_distance)
 
     print("Driver: Arrived at x: {0}, y: {1}".format(x, y))
 
 
 # this module only send data
 # Thi function takes
-def robot_control(command, arg1, serial_port):
+def robot_control(command, arg1):
     """
 
     :param command:
@@ -127,8 +134,9 @@ def robot_control(command, arg1, serial_port):
     # process the time (if any)
     global message
     global current_mode
-
+    global ser
     # ADding 0 at the front to work with patrol mode and maual mode
+
     if command == 'forward':
         message = "01" + ("1" if arg1 >= 0 else "0") + str(abs(arg1)).zfill(4)
     elif command == 'turn':
@@ -139,18 +147,18 @@ def robot_control(command, arg1, serial_port):
 
     # only forward and turn will reach here
 
-    serial_port.write(message.encode())
+    ser.write(message.encode())
 
     # wait for arduino feedback to send another serial message
 
-    # TODO The program can get Sstucked here!
-    while serial_port.readline() != b'done\r\n':
+    # TODO The program can get Stucked here!
+    while ser.readline() != b'done\r\n':
         if current_mode == mode['Mapping']:
             break
         print("Waiting for feedback")
 
     print('Robot control message sent!')
-    return 1
+    return
 
 
 # url string, data string
@@ -232,23 +240,23 @@ def update_current_coordinate_from_serial():
 
     delta_distance = 0
     delta_angle = 0
-    print("Start")
+    # print("Start")
 
     while not serial_message.empty():
 
         current_message = serial_message.get()
         serial_message.task_done()
 
-        print(current_message)
+        # print(current_message)
 
         if current_message[:1] == "M":
             # if it's a map point message, remove the map point tag and put it back
             serial_message.put(current_message[2:])
-            print("Message reverted----!")
+            # print("Message reverted----!")
             break
 
         parsed_message = serial_message_parser(current_message)
-        print(parsed_message)
+        # print(parsed_message)
 
         if parsed_message["cmd"] == "forward":
             delta_distance += parsed_message['arg1']
@@ -285,9 +293,13 @@ def update_current_coordinate(delta_distance, delta_angle):
     current_coord.x += round((delta_distance * math.cos(math.radians(current_coord.theta))), 2)
     current_coord.y += round((delta_distance * math.sin(math.radians(current_coord.theta))), 2)
 
+    # avoid inputs that are larger than 360
     delta_angle = delta_angle % 360
+
     # keeps angle between 0 and 360
     current_coord.theta += round(delta_angle, 2)
+
+    # clamp theat between -180 and 180 for the atan2
     if current_coord.theta > 180:
         current_coord.theta -= 360
     if current_coord.theta < -180:
@@ -322,6 +334,7 @@ def finish_mapping():
         make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
     return
 
+
 """
 This part are the code for modes
 Contains: 
@@ -345,14 +358,22 @@ def mapping_mode():
 
     global boundary_map
     global map_point
+
+    # delta_distance = 0
+    # delta_angle = 0
+
     # Use map point to signal that there is a new point to be added. Otherwise the main thread skip everything
     if map_point:
         print("Add New Way point!")
+        # parsed_message = serial_message_parser(ser.readline().decode("utf-8"))
+        # delta_distance += parsed_message['arg1']
+        # delta_angle += parsed_message['arg1']
+        # update_current_coordinate(delta_distance, delta_angle)
+
         update_current_coordinate_from_serial()
         boundary_map.put(current_coord)
         if DEBUG != 1:
             make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
-
         map_point = False
 
     # global current_coord
@@ -461,15 +482,13 @@ def robot_mode_main():
                     # if the len is not the same, that meaans it's the new boundary
                     if len(new_path) != len(patrol_path):
                         patrol_path = new_path
+                        copy_list = copy.copy(patrol_path)
+                        while not copy_list:
+                            patrol_path.append(copy_list.pop())
                         current_patrol_point = 0
+
                 else:
                     patrol_path = {}
-
-                if len(patrol_path) != 0:
-                    copy_list = copy.copy(patrol_path)
-                    while not copy_list:
-                        patrol_path.append(copy_list.pop())
-                current_patrol_point = 0
 
             if not serial_message.empty():
                 print("Mapping points are not completed")
@@ -496,7 +515,12 @@ def robot_mode_main():
                 location = {"x": 0, "y": 0}
 
             print("Going to: " + str(int(location['x'])) + " " + str(int(location['y'])))
-            motor_control(float(location['x']), float(location['y']), ser)
+
+            if abs(location['x'] - current_coord.x) < 3 and abs(location['y'] - current_coord.y) < 3:
+                pass
+            else:
+                motor_control(float(location['x']), float(location['y']), ser)
+            # motor_control(float(location['x']), float(location['y']), ser)
 
             make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
             current_coord.print_coordinate()
@@ -520,8 +544,11 @@ def serial_read():
     current_message = ""
 
     while True:
+
         # only add message if it's mapping mode
-        if current_mode == mode['Mapping']:
+
+        if current_mode == 1:
+
             current_message = ser.readline().decode("utf-8")
 
             if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
