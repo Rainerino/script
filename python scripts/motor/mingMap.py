@@ -28,8 +28,11 @@ class Coordinate:
         """
         print("coordinate: x: {0}, y: {1}, theta: {2}".format(self.x, self.y, self.theta))
 
-    def return_dict_for_server(self):
+    def return_pos_to_dict(self):
         return {"x": self.x, "y": self.y}
+
+    def return_coordinate_to_dict(self):
+        return {"x": self.x, "y": self.y, "theta": self.theta}
 
 
 # Current Coordinates of the robot.
@@ -45,10 +48,6 @@ current_mode = 0
 
 ser = serial
 
-map_point_acquired = queue.Queue()
-
-new_path_acquired = False
-
 current_patrol_point = 0
 
 boundary_map = queue.Queue()
@@ -56,6 +55,8 @@ boundary_map = queue.Queue()
 serial_message = queue.Queue()
 
 DEBUG = 0
+
+ARDUINO = 1
 
 
 # helper function to reset the current coordinates and parameter array.
@@ -81,8 +82,11 @@ def motor_control(x, y, serial_port):
 
     deltaX = x - current_coord.x
     deltaY = y - current_coord.y
+    if deltaX == 0 and deltaY == 0:
+        print("Robot Arrive at the position")
+        return
     # calculates angle
-    destinationAngle = math.degrees(math.atan2(deltaY / deltaX))
+    destinationAngle = math.degrees(math.atan2(deltaY, deltaX))
     angleToChange = destinationAngle - current_coord.theta
 
     robot_control("turn", angleToChange, serial_port)
@@ -90,21 +94,6 @@ def motor_control(x, y, serial_port):
     delta_distance = (deltaX ** 2 + deltaY ** 2) ** (1 / 2)
 
     robot_control('forward', delta_distance, serial_port)
-
-
-# helper function to detect distance between 2 points
-def distance(x1, y1, x2, y2):
-    """
-
-    :param x1:
-    :param y1:
-    :param x2:
-    :param y2:
-    :return:
-    """
-    deltaX = x2 - x1
-    deltaY = y2 - y1
-    return (deltaX ** 2 + deltaY ** 2) ** (1 / 2)
 
 
 # this module only send data
@@ -120,6 +109,8 @@ def robot_control(command, arg1, serial_port):
     # process the direction
     # process the time (if any)
     global message
+    global current_mode
+
     if command == 'forward':
         message = "1" + ("1" if arg1 >= 0 else "0") + str(abs(arg1)).zfill(4)
     elif command == 'turn':
@@ -133,7 +124,11 @@ def robot_control(command, arg1, serial_port):
     serial_port.write(message.encode())
 
     # wait for arduino feedback to send another serial message
+
+    # TODO The program can get Sstucked here!
     while serial_port.readline() != b'done\r\n':
+        if current_mode == mode['Mapping']:
+            break
         print("Waiting for feedback")
 
     print('Robot control message sent!')
@@ -193,30 +188,19 @@ def serial_message_parser(one_message):
     return received_coordinate
 
 
-def update_current_coordinate(delta_distance, delta_angle):
+# helper function to detect distance between 2 points
+def distance(x1, y1, x2, y2):
     """
-    Function call which updates Current_Coord
-    Left angle == POSITIVE, Right angle == NEGATIVE
-    assumes Arduino gives a continuous distance while it's going 1
-    direction, otherwise returns 0. Angle gives updated angle.
-    :param delta_angle:
-    :param delta_distance:
+
+    :param x1:
+    :param y1:
+    :param x2:
+    :param y2:
     :return:
     """
-    global current_coord
-
-    # the current heading is where the distance headed, so we update the angle in the end
-
-    current_coord.x += round((delta_distance * math.cos(math.radians(current_coord.theta))), 2)
-    current_coord.y += round((delta_distance * math.sin(math.radians(current_coord.theta))), 2)
-
-    delta_angle = delta_angle % 360
-    # keeps angle between 0 and 360
-    current_coord.theta += round(delta_angle, 2)
-    if current_coord.theta > 180:
-        current_coord.theta -= 360
-    if current_coord.theta < -180:
-        current_coord.theta += 360
+    deltaX = x2 - x1
+    deltaY = y2 - y1
+    return (deltaX ** 2 + deltaY ** 2) ** (1 / 2)
 
 
 def update_current_coordinate_from_serial():
@@ -263,6 +247,32 @@ def update_current_coordinate_from_serial():
     return
 
 
+def update_current_coordinate(delta_distance, delta_angle):
+    """
+    Function call which updates Current_Coord
+    Left angle == POSITIVE, Right angle == NEGATIVE
+    assumes Arduino gives a continuous distance while it's going 1
+    direction, otherwise returns 0. Angle gives updated angle.
+    :param delta_angle:
+    :param delta_distance:
+    :return:
+    """
+    global current_coord
+
+    # the current heading is where the distance headed, so we update the angle in the end
+
+    current_coord.x += round((delta_distance * math.cos(math.radians(current_coord.theta))), 2)
+    current_coord.y += round((delta_distance * math.sin(math.radians(current_coord.theta))), 2)
+
+    delta_angle = delta_angle % 360
+    # keeps angle between 0 and 360
+    current_coord.theta += round(delta_angle, 2)
+    if current_coord.theta > 180:
+        current_coord.theta -= 360
+    if current_coord.theta < -180:
+        current_coord.theta += 360
+
+
 """
 This part are the code for modes
 Contains: 
@@ -278,10 +288,57 @@ manual mode
 def mapping_mode():
     global boundary_map
     # de queue
+    """
+    # :return:
+    # False if dumped the serial message and add a point with no turn
+    # True of add a way point with angle change
+    # """
+
+    global boundary_map
+    # de queue
     update_current_coordinate_from_serial()
     boundary_map.put(current_coord)
     if DEBUG != 1:
-        make_request("http://griin.today/API/boundaries", "POST", current_coord.return_dict_for_server())
+        make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
+
+    # global current_coord
+    # global serial_message
+    #
+    # delta_distance = 0
+    # delta_angle = 0
+    # print("Start")
+    #
+    # while not serial_message.empty():
+    #
+    #     current_message = serial_message.get()
+    #     serial_message.task_done()
+    #
+    #     print(current_message)
+    #
+    #     if current_message[:2] == "M_":
+    #         boundary_map.put(current_coord)
+    #
+    #     parsed_message = serial_message_parser(current_message)
+    #
+    #     print(parsed_message)
+    #
+    #     if parsed_message["cmd"] == "forward":
+    #         delta_distance = parsed_message['arg1']
+    #
+    #     elif parsed_message["cmd"] == "turn":
+    #         delta_angle = parsed_message['arg1']
+    #
+    #     print("d_distance = " + str(delta_distance) + " d_angle = " + str(delta_angle))
+    #
+    #     update_current_coordinate(delta_distance, delta_angle)
+    #
+    #     current_coord.print_coordinate()
+    #
+    # print("End")
+    #
+    #
+    # make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
+    #
 
 
 # prototype mode for patrol
@@ -294,16 +351,13 @@ def patrol_mode():
 
     # if the queue is updated
     global current_patrol_point
-
-    if new_path_acquired:
-        copy_list = copy.copy(patrol_path)
-        while not copy_list:
-            patrol_path.append(copy_list.pop())
-            current_patrol_point = 0
-    elif current_patrol_point != len(patrol_path):
-
-        motor_control(patrol_path[current_patrol_point].x, patrol_path[current_patrol_point].y, ser)
+    if len(patrol_path) == 0:
+        print("Map Needed or No patrol path loaded")
+        return
+    if current_patrol_point != len(patrol_path):
+        motor_control(patrol_path[current_patrol_point]['x'], patrol_path[current_patrol_point]['y'], ser)
         current_patrol_point += 1
+
 
 """
 Thread functions
@@ -313,35 +367,73 @@ Thread functions
 def robot_mode_main():
     global current_mode
     global ser
-    change = 0
+
     while True:
+
         if DEBUG != 1:
             temp = make_request("http://griin.today/API/current_mode", "GET")['current_mode']
+
+            # update the current coordinate
+            make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
+
             if temp != current_mode:
                 change = 1
             else:
                 change = 0
+
             current_mode = temp
 
-        if DEBUG == 1:
+        else:
             current_mode = 1
             change = 0
+
         print("Current Mode: " + str(current_mode))
 
         if current_mode == mode['Mapping']:
             if change == 1:
                 resetStates()
                 ser.write("1000000".encode())
-
             mapping_mode()
 
         elif current_mode == mode['Patrol']:
+            if change == 1:
+                if DEBUG != 1:
+                    global patrol_path
+                    patrol_path = make_request("http://griin.today/API/patrol_path", "GET")['patrol_path']
+                else:
+                    patrol_path = {}
+                if len(patrol_path) != 0:
+                    copy_list = copy.copy(patrol_path)
+                    while not copy_list:
+                        patrol_path.append(copy_list.pop())
+                        current_patrol_point = 0
+
             if not serial_message.empty():
-                update_current_coordinate_from_serial()
+                mapping_mode()
             else:
                 patrol_mode()
+        elif current_mode == mode['Manual']:
+            if DEBUG != 1:
+                location = make_request("http://griin.today/API/current_target", "GET")
+                print(location)
 
+                try:
+                    float(location['x'])
+                    float(location['y'])
+                except:
+                    print("Invalid Location")
+                    continue
+            else:
+                location = {"x": 0, "y": 0}
 
+            if not serial_message.empty():
+                mapping_mode()
+            else:
+                print("Going to: " + str(int(location['x'])) + " " + str(int(location['y'])))
+                motor_control(int(location['x']), int(location['y']), ser)
+        else:
+            assert "Mode is not defined!"
+        sleep(2)
 
 
 def serial_read():
@@ -356,6 +448,7 @@ def serial_read():
 
     last_message = ""
     current_message = ""
+
     while True:
         # only add message if it's mapping mode
         if current_mode == mode['Mapping']:
@@ -374,35 +467,69 @@ def serial_read():
             # change the signal from turn to forward, then update the map
             last_message = current_message
 
+    # last_message = ""
+    # current_message = ""
+    # while True:
+    #     # only add message if it's mapping mode
+    #     if current_mode == mode['Mapping']:
+    #         current_message = ser.readline().decode("utf-8")
+    #
+    #         if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
+    #             'cmd'] == "turn":
+    #             current_message = "M_" + current_message
+    #
+    #         serial_message.put(current_message)
+    #
+    #         # if angle is detected
+    #
+    #         print("thread serial read ------------ " + current_message + str(serial_message.qsize()))
+    #
+    #         # change the signal from turn to forward, then update the map
+    #         last_message = current_message
+
 
 if __name__ == "__main__":
     print("Program init")
-
-    port = 'COM15'
+    """
+    """
+    port = 'COM13'
+    """
+    """
     while not portIsUsable(port):
         print("Try to connect to " + port)
         sleep(2)
+        if port == 'COM13':
+            port = 'COM15'
+
     ser = serial.Serial(port=port, timeout=10, baudrate=9600)
+
     print("Arduino connected")
     # TODO: the hand shake process to make sure it's connected
     sleep(2)
     print("Start controlling")
+    print("Debug mode is " + str(DEBUG))
+    print("Arduino mode is " + str(ARDUINO))
+
+    current_mode = 1
 
     # # the first thread is the main one that will send
-    main_thread = Thread(target=robot_mode_main, args=())
+    if ARDUINO != 1:
+        main_thread = Thread(target=robot_mode_main, args=())
 
     serial_read_thread = Thread(target=serial_read, args=())
 
-    main_thread.start()
+    if ARDUINO != 1:
+        ser.write('1000000'.encode())
+
+    if ARDUINO != 1:
+        main_thread.start()
+
     serial_read_thread.start()
 
-    # TODO image!!
+    if ARDUINO != 1:
+        main_thread.join()
 
-    main_thread.join()
     serial_read_thread.join()
 
     while True:
         pass
-
-    ser.close()
-    print("Closed " + port)

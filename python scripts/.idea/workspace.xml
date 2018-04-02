@@ -22,7 +22,7 @@
         <entry file="file://$PROJECT_DIR$/proto.ipynb">
           <provider selected="true" editor-type-id="ipnb-editor">
             <state>
-              <selected id="2" />
+              <selected id="6" />
             </state>
           </provider>
         </entry>
@@ -30,16 +30,20 @@
       <file leaf-file-name="mingMap.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="233" lean-forward="true" selection-start-line="233" selection-end-line="252" selection-end-column="49" />
+            <state relative-caret-position="85">
+              <caret line="500" column="27" lean-forward="true" selection-start-line="500" selection-start-column="27" selection-end-line="500" selection-end-column="27" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <element signature="e#2364#3177#0" />
+                <element signature="e#206#705#0" />
+                <element signature="e#1123#1385#0" />
                 <element signature="e#3261#3424#0" />
                 <element signature="e#3472#3593#0" />
                 <element signature="e#3640#4493#0" />
-                <element signature="e#4560#5433#0" />
-                <element signature="e#6473#6561#1" />
+                <element signature="e#4418#4595#0" />
+                <element signature="e#4678#5701#0" />
+                <element signature="e#6924#8440#0" />
+                <element signature="e#7362#7384#0" />
+                <element signature="e#7053#7417#0" />
               </folding>
             </state>
           </provider>
@@ -57,13 +61,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>prevDistance</find>
-      <find>isAngleChanged</find>
-      <find>current_message</find>
-      <find>command</find>
-      <find>outerParameter</find>
-      <find>Current_Coord['ang']</find>
-      <find>addCurrToParameter</find>
       <find>motor_control</find>
       <find>distance</find>
       <find>Point</find>
@@ -87,7 +84,18 @@
       <find>print(</find>
       <find>#print(</find>
       <find>pass</find>
+      <find>new_path_acquired</find>
+      <find>current_patrol_point</find>
+      <find>DEBUG</find>
+      <find>sleep</find>
+      <find>debug</find>
+      <find>return_dict_for_server</find>
+      <find>wr</find>
     </findStrings>
+  </component>
+  <component name="HierarchyBrowserManager">
+    <option name="SORT_ALPHABETICALLY" value="true" />
+    <option name="SCOPE" value="This Class" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -393,23 +401,22 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="720" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5003903" side_tool="true" weight="0.3268366" />
       <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="11" sideWeight="0.49960968" weight="0.3504823" />
-      <window_info anchor="bottom" id="Run" order="13" visible="true" weight="0.1994003" />
-      <window_info anchor="bottom" id="Terminal" order="10" weight="0.2749196" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14609376" />
+      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.7556222" visible="true" weight="0.41484374" />
+      <window_info anchor="bottom" id="Terminal" order="10" weight="0.27436283" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49812734" weight="0.14609376" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="right" auto_hide="true" id="SciView" order="4" show_stripe_button="false" type="FLOATING" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="right" id="Structure" order="6" sideWeight="0.2443778" side_tool="true" visible="true" weight="0.41484374" />
+      <window_info id="Favorites" order="1" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39871383" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -679,13 +686,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Anaconda3/Lib/json/decoder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="356" selection-start-line="356" selection-end-line="356" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/motor/drafts.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="299">
@@ -737,25 +737,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/Anaconda3/Lib/json/decoder.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="492">
+          <caret line="356" selection-start-line="356" selection-end-line="356" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/proto.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
-          <selected id="2" />
+          <selected id="6" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="233" lean-forward="true" selection-start-line="233" selection-end-line="252" selection-end-column="49" />
+        <state relative-caret-position="85">
+          <caret line="500" column="27" lean-forward="true" selection-start-line="500" selection-start-column="27" selection-end-line="500" selection-end-column="27" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#2364#3177#0" />
+            <element signature="e#206#705#0" />
+            <element signature="e#1123#1385#0" />
             <element signature="e#3261#3424#0" />
             <element signature="e#3472#3593#0" />
             <element signature="e#3640#4493#0" />
-            <element signature="e#4560#5433#0" />
-            <element signature="e#6473#6561#1" />
+            <element signature="e#4418#4595#0" />
+            <element signature="e#4678#5701#0" />
+            <element signature="e#6924#8440#0" />
+            <element signature="e#7362#7384#0" />
+            <element signature="e#7053#7417#0" />
           </folding>
         </state>
       </provider>
