@@ -308,34 +308,6 @@ def update_current_coordinate(delta_distance, delta_angle):
         current_coord.theta += 360
 
 
-def finish_mapping():
-    delta_distance = 0
-    delta_angle = 0
-
-    while not serial_message.empty():
-
-        current_message = serial_message.get()
-        serial_message.task_done()
-
-        parsed_message = serial_message_parser(current_message)
-        print(parsed_message)
-
-        if parsed_message["cmd"] == "forward":
-            delta_distance += parsed_message['arg1']
-        elif parsed_message["cmd"] == "turn":
-            delta_angle += parsed_message['arg1']
-
-    update_current_coordinate(delta_distance, delta_angle)
-    print("Final mapping point: ")
-    current_coord.print_coordinate()
-    boundary_map.put(current_coord)
-    print(current_coord.return_pos_to_dict())
-
-    if DEBUG != 1:
-        make_request("http://griin.today/API/boundaries", "POST", current_coord.return_pos_to_dict())
-        make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
-    return
-
 
 """
 This part are the code for modes
@@ -562,65 +534,6 @@ def robot_mode_main():
         # sleep(2)
 
 
-def serial_read():
-    """
-    This is the thraed to read message from serial port when it's mapping mode
-    :param serial_port:
-    :param message_queue:
-    """
-    global current_mode
-    global ser
-    global serial_message
-    global map_point
-
-    last_message = ""
-    current_message = ""
-
-    while True:
-
-        # only add message if it's mapping mode
-
-        if current_mode == 1:
-
-            # current_message = ser.readline().decode("utf-8")
-
-            if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
-                'cmd'] == "turn":
-                map_point = True
-                current_message = "M_" + current_message
-
-            # if serial_message_parser(current_message)['cmd'] == "turn":
-            #     map_point = True
-
-            serial_message.put(current_message)
-
-            # if angle is detected
-
-            print("thread serial read ------------ " + current_message + str(serial_message.qsize()))
-
-            last_message = current_message
-
-    # last_message = ""
-    # current_message = ""
-    # while True:
-    #     # only add message if it's mapping mode
-    #     if current_mode == mode['Mapping']:
-    #         current_message = ser.readline().decode("utf-8")
-    #
-    #         if serial_message_parser(current_message)['cmd'] == "forward" and serial_message_parser(last_message)[
-    #             'cmd'] == "turn":
-    #             current_message = "M_" + current_message
-    #
-    #         serial_message.put(current_message)
-    #
-    #         # if angle is detected
-    #
-    #         print("thread serial read ------------ " + current_message + str(serial_message.qsize()))
-    #
-    #         # change the signal from turn to forward, then update the map
-    #         last_message = current_message
-
-
 if __name__ == "__main__":
     print("Program init")
     """
@@ -646,27 +559,7 @@ if __name__ == "__main__":
     print("Arduino mode is " + str(ARDUINO))
     print("No car mode is " + str(NO_CAR))
 
-    if ARDUINO != 1:
-        current_mode = 1
-
-    # # the first thread is the main one that will send
-    if ARDUINO != 1:
-        main_thread = Thread(target=robot_mode_main, args=())
-
-    # serial_read_thread = Thread(target=serial_read, args=())
-
-    if ARDUINO != 1:
-        ser.write('1000000'.encode())
-
-    if ARDUINO != 1:
-        main_thread.start()
-
-    # serial_read_thread.start()
-
-    if ARDUINO != 1:
-        main_thread.join()
-
-    # serial_read_thread.join()
+    robot_mode_main()
 
     while True:
         pass
