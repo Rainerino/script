@@ -23,7 +23,7 @@
         <entry file="file://$PROJECT_DIR$/proto.ipynb">
           <provider selected="true" editor-type-id="ipnb-editor">
             <state>
-              <selected id="7" />
+              <selected id="0" />
             </state>
           </provider>
         </entry>
@@ -31,13 +31,11 @@
       <file leaf-file-name="mingMap.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="359">
-              <caret line="151" column="50" selection-start-line="151" selection-start-column="50" selection-end-line="151" selection-end-column="50" />
+            <state relative-caret-position="393">
+              <caret line="247" column="24" selection-start-line="247" selection-start-column="24" selection-end-line="247" selection-end-column="24" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <element signature="e#205#733#0" />
-                <element signature="e#1647#2775#0" />
-                <element signature="e#5361#6538#0" />
+                <element signature="e#125#676#0" />
               </folding>
             </state>
           </provider>
@@ -113,8 +111,8 @@
         <option value="$PROJECT_DIR$/serial.test.py" />
         <option value="$PROJECT_DIR$/motor/drafts.py" />
         <option value="$PROJECT_DIR$/internet.py" />
-        <option value="$PROJECT_DIR$/proto.ipynb" />
         <option value="$PROJECT_DIR$/test cases.txt" />
+        <option value="$PROJECT_DIR$/proto.ipynb" />
         <option value="$PROJECT_DIR$/motor/mingMap.py" />
       </list>
     </option>
@@ -378,17 +376,17 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5003903" side_tool="true" weight="0.3268366" />
       <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
-      <window_info active="true" anchor="right" id="Run" order="7" sideWeight="0.72113943" visible="true" weight="0.5078125" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="11" sideWeight="0.49960968" weight="0.3504823" />
+      <window_info anchor="right" id="Run" order="7" sideWeight="0.7196402" weight="0.35546875" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.27436283" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49812734" weight="0.14609376" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="right" auto_hide="true" id="SciView" order="4" show_stripe_button="false" type="FLOATING" />
-      <window_info anchor="right" id="Structure" order="6" sideWeight="0.27886057" side_tool="true" visible="true" weight="0.5078125" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39730135" />
+      <window_info active="true" anchor="right" id="Structure" order="6" sideWeight="0.28035983" side_tool="true" visible="true" weight="0.35546875" />
       <window_info id="Favorites" order="1" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39730135" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -403,26 +401,26 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.146875" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="7" />
+      <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
       <window_info active="true" anchor="bottom" id="Run" order="3" visible="true" weight="0.20496894" />
-      <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.49960968" weight="0.3279743" />
-      <window_info anchor="bottom" id="Message" order="1" />
+      <window_info anchor="bottom" id="Find" order="2" weight="0.32941177" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.39871383" />
       <window_info anchor="right" x="0" y="0" width="273" height="535" id="Documentation" order="5" side_tool="true" weight="0.32943013" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.2749196" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.5003903" side_tool="true" weight="0.3279743" />
       <window_info anchor="bottom" id="Database Changes" order="13" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="right" id="SciView" order="4" />
-      <window_info anchor="bottom" id="Find" order="2" weight="0.32941177" />
+      <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="0" weight="0.329582" />
-      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.49960968" weight="0.3279743" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -433,23 +431,10 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="22" />
+      <option name="time" value="23" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2924">
-          <caret line="172" selection-start-line="172" selection-end-line="172" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#205#733#0" />
-            <element signature="e#1647#2775#0" />
-            <element signature="e#5361#6538#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/image processing/proto.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
@@ -696,22 +681,21 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://D:/script/python scripts/motor/MINGMAP.PY" />
     <entry file="file://$PROJECT_DIR$/proto.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
-          <selected id="7" />
+          <selected id="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/motor/mingMap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="359">
-          <caret line="151" column="50" selection-start-line="151" selection-start-column="50" selection-end-line="151" selection-end-column="50" />
+        <state relative-caret-position="393">
+          <caret line="247" column="24" selection-start-line="247" selection-start-column="24" selection-end-line="247" selection-end-column="24" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#205#733#0" />
-            <element signature="e#1647#2775#0" />
-            <element signature="e#5361#6538#0" />
+            <element signature="e#125#676#0" />
           </folding>
         </state>
       </provider>

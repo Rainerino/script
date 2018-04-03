@@ -1,20 +1,26 @@
+"""
+This is the program that will connect the arduino on the car with the server
+It has some requirements:
+Author: Ming-han Ko, Yiyi Yan
+1. The server has to follow the request format from http://griin.today/
+2. The arduino has to follow the protocol in order to communicate with this program
+    It has to connect via one of the three ports: COM13, COM15 or '/dev/ttyACM0'
+3. This program should be running in an individual process on rasspberry pi 3
+
+Protocal between arduino and pi are as follow:
+"""
 import math
-from threading import Thread
 from time import sleep
 import serial
-import sys
-import glob
 import queue
-import copy
 import re
 import requests
 import json
-import threading
 
 
 class Coordinate:
     """
-    creates the class of x,y, theta corrdinate of the robot
+    creates the class of x,y, theta coordinate of the robot
     """
 
     def __init__(self, x=0, y=0, theta=90):
@@ -24,36 +30,50 @@ class Coordinate:
 
     def print_coordinate(self):
         """
+        This function prints the current coordinate for debugging purpose
         :return:
         """
         print("coordinate: x: {0}, y: {1}, theta: {2}".format(self.x, self.y, self.theta))
 
     def return_pos_to_dict(self):
+        """
+        :return: x and y
+        """
+
         return {"x": self.x, "y": self.y}
 
     def return_coordinate_to_dict(self):
+        """
+        :return: json files of the x, y and angle
+        """
         return {"x": self.x, "y": self.y, "angle": self.theta}
 
 
 # Current Coordinates of the robot.
-# Angle is kept between 180 and -180
+# Angle is kept between 0-180 and -180 to 0, following the converition of atan2:
+# counterclockwise start from 0 v(1, 0), to 90 degree at v(0, 1) and 180 at v(-1, 0), then as
+# -180 at v(-1, 0) to 0 at v(1, 0)
 current_coord = Coordinate()
-# global used by functions
 
+# This is saved from the server
 patrol_path = []
 
+# The three mode of what we are doing
 mode = {"Manual": 0, "Mapping": 1, "Patrol": 2}
 
+# The default mode of the program is 0
 current_mode = 0
 
+# global serial port
 ser = serial
 
+# index for patrolling path, to indeicate the next point to patrol
 current_patrol_point = 0
 
+# the mapping data storage
 boundary_map = queue.Queue()
 
-serial_message = queue.Queue()
-
+# Debugging bits that disable and enable functionalities
 DEBUG = 0
 
 ARDUINO = 0
@@ -64,17 +84,16 @@ MODE_1_DISABLED = 1
 
 MODE_2_DISABLED = 1
 
+# Prototyping variables that were never ussed
 map_point = False
 
 revert = False
-
-mode_lock = threading.Lock()
 
 
 # helper function to reset the current coordinates and parameter array.
 def resetStates():
     """
-
+    This function reset every storage data, only for mapping mode
     :return:
     """
     global current_coord
@@ -89,10 +108,15 @@ def resetStates():
 
 # Function call which tells the robot to go to a certain X,Y coordinate.
 def motor_control(x, y):
+    """
+    This is the function will control the motor based on x and y
+    :param x:
+    :param y:
+    :return:
+    """
     # calculates the angle based on the difference of the current location and the
     # destination X,Y
     global ser
-
     print("Driver: going to x: {0}, y: {1}".format(x, y))
     deltaX = x - current_coord.x
     deltaY = y - current_coord.y
@@ -101,31 +125,35 @@ def motor_control(x, y):
         return
     # calculates angle
     destinationAngle = math.degrees(math.atan2(deltaY, deltaX))
-    print(destinationAngle)
     angleToChange = destinationAngle - current_coord.theta
-    print(angleToChange)
 
+    # trim the angle to fit the calculation
     if angleToChange > 180:
         angleToChange -= 360
     if angleToChange < -180:
         angleToChange += 360
 
+    # calculate the distance
     delta_distance = (deltaX ** 2 + deltaY ** 2) ** (1 / 2)
 
-    # update_current_coordinate(delta_distance, angleToChange)
-
+    # update current coordinate one by one.
+    # each data is depended on each other, so we have to modify them one by one.
     update_current_coordinate(0, angleToChange)
     update_current_coordinate(delta_distance, 0)
 
+    # if we are testing without the car, we jusst sleep and print message
     if NO_CAR == 1:
         sleep(2)
         print("Arrived at x: {0}, y: {1}".format(x, y))
         return
 
+    # turn the car with delta angle
     robot_control("turn", angleToChange)
 
+    # go forward when there is a distance
     robot_control('forward', delta_distance)
 
+    # prints message to indicate the completion of the car control
     print("Driver: Arrived at x: {0}, y: {1}".format(x, y))
 
 
@@ -133,11 +161,10 @@ def motor_control(x, y):
 # Thi function takes
 def robot_control(command, arg1):
     """
-
+    This iss the lowest layer of the program, it directly controls the car.
     :param command:
     :param arg1:
-    :param serial_port:
-    :return:
+    :return: nothing
     """
     # process the direction
     # process the time (if any)
@@ -154,13 +181,12 @@ def robot_control(command, arg1):
         # there are two way to stop: one is natural one is interrupt stop/
         message = "03" + str(0).zfill(5)
 
-    # only forward and turn will reach here
-
     ser.write(message.encode())
 
     # wait for arduino feedback to send another serial message
 
     # TODO The program can get Stucked here!
+    # solved: only limit the serial port read 1 per mode, otherwise it will miss it.
     while ser.readline() != b'done\r\n':
         if current_mode == mode['Mapping']:
             break
@@ -170,8 +196,16 @@ def robot_control(command, arg1):
     return
 
 
-# url string, data string
-def make_request(URL, http_mode='GET', data=None):
+def make_request(URL, http_mode
+
+='GET', data=None):
+    """
+    THis function get or post request to the server.
+    :param URL:
+    :param http_mode:
+    :param data:
+    :return: directionarry of the data
+    """
     if http_mode == 'GET':
         r = requests.get(URL)
         return json.loads(r.content.decode("utf-8"))
@@ -180,8 +214,12 @@ def make_request(URL, http_mode='GET', data=None):
         return
 
 
-# Check port
 def portIsUsable(portName):
+    """
+    Check if the port is avaible
+    :param portName:
+    :return: boolean for is the port is connected or not
+    """
     try:
         serial.Serial(port=portName, timeout=10, baudrate=9600)
         return True
@@ -200,10 +238,7 @@ def serial_message_parser(one_message):
     """
     received_coordinate = {}
 
-    # remove the mapping tag
-    # if one_message[:2] == "M_":
-    #     one_message = one_message[2:]
-
+    # parse the float data from the 
     data = re.findall(r"[-+]?\d*\.\d+|\d+", str(one_message))
     # IF the data is corrupted
     if len(data) != 2:
@@ -212,7 +247,6 @@ def serial_message_parser(one_message):
         return received_coordinate
 
     # if the daa is good
-
     if float(data[0]) != 0:
         received_coordinate['cmd'] = "forward"
         received_coordinate['arg1'] = float(data[0])
@@ -479,7 +513,7 @@ def robot_mode_main():
             else:
                 current_coord.print_coordinate()
                 motor_control(float(location['x']), float(location['y']))
-            # motor_control(float(location['x']), float(location['y']))
+                # motor_control(float(location['x']), float(location['y']))
                 current_coord.print_coordinate()
             make_request("http://griin.today/API/current_location", "POST", current_coord.return_coordinate_to_dict())
             current_coord.print_coordinate()
